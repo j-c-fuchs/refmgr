@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+"""The __main__ module lets you run the CLI interface."""
+
 
 from . import main
 
