@@ -15,9 +15,31 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from . import config
+"""CLI interface of refmgr."""
 
-__version__ = '0.0.0'
+import argparse
+import sys
+
+from . import __version__, conf
 
 
-conf = config.config()
+def configure(args):
+    """Configure refmgr."""
+    conf.write(sys.stdout)
+
+
+def main():
+    """Main program.
+
+    Currently, only a short notice is printed.
+    """
+    parser = argparse.ArgumentParser(prog='refmgr')
+    parser.add_argument('--version', action='version',
+                        version=f'This is %(prog)s, version {__version__}.')
+    subparsers = parser.add_subparsers()
+
+    config_parser = subparsers.add_parser('config')
+    config_parser.set_defaults(func=configure)
+
+    args = parser.parse_args()
+    args.func(args)

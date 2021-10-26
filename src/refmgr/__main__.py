@@ -17,7 +17,7 @@
 """The __main__ module lets you run the CLI interface."""
 
 
-from . import main
+from .ui import main
 
 
 if __name__ == '__main__':
