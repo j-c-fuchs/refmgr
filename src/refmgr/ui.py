@@ -24,7 +24,7 @@ from . import __version__, conf
 
 
 def configure(args):
-    """Configure refmgr."""
+    """Print out the configuration."""
     conf.write(sys.stdout)
 
 
