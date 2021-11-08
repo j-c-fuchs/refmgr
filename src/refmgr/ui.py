@@ -21,6 +21,7 @@ import argparse
 import sys
 
 from . import __version__, conf
+from .importrefs import importrefs
 
 
 def configure(args):
@@ -40,6 +41,10 @@ def main():
 
     config_parser = subparsers.add_parser('config')
     config_parser.set_defaults(func=configure)
+
+    import_parser = subparsers.add_parser('import')
+    import_parser.set_defaults(func=importrefs)
+    import_parser.add_argument('refs', nargs='+')
 
     args = parser.parse_args()
     args.func(args)
