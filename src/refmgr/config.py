@@ -23,6 +23,7 @@ def default():
     """Return the default config."""
     conf = configparser.ConfigParser()
     conf['library'] = {'path': '~/Documents/refmgr/'}
+    conf['bibtex'] = {'num_indent': '2'}
     return conf
 
 
