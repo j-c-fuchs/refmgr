@@ -18,9 +18,11 @@
 """CLI interface of refmgr."""
 
 import argparse
+import os.path
 import sys
 
 from . import __version__, conf
+from . import config
 from .importrefs import importrefs
 
 
@@ -34,9 +36,13 @@ def main():
 
     Currently, only a short notice is printed.
     """
+    default_conf_path = '~/.config/refmgr/conf'
+
     parser = argparse.ArgumentParser(prog='refmgr')
     parser.add_argument('--version', action='version',
                         version=f'This is %(prog)s, version {__version__}.')
+    parser.add_argument('-c', action='store', default=default_conf_path,
+                        help=f"config file (default: '{default_conf_path}'")
     subparsers = parser.add_subparsers()
 
     config_parser = subparsers.add_parser('config')
@@ -46,5 +52,14 @@ def main():
     import_parser.set_defaults(func=importrefs)
     import_parser.add_argument('refs', nargs='+')
 
+    # parse the command line arguments
     args = parser.parse_args()
+
+    # parse the config file
+    conf_path = os.path.realpath(
+        os.path.normpath(
+            os.path.expanduser(
+                args.c)))
+    config.loadconfig(conf, conf_path)
+
     args.func(args)
