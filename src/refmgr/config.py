@@ -17,6 +17,7 @@
 """Config of refmgr."""
 
 import configparser
+import logging
 
 
 def default():
@@ -27,15 +28,13 @@ def default():
     return conf
 
 
-def config(path='~/.config/refmgr/conf'):
-    """Returns the config after reading the config file at `path`."""
-    conf = default()
-
+def loadconfig(conf, path):
+    """Read the config from `path` into the config `conf`."""
     try:
-        with open(path, 'r') as configfile:
-            conf.read(configfile)
+        logging.debug(f"trying to read config file '{path}'")
+        conf.read(path)
+        logging.debug(f"config file '{path}' succesfully read")
     except FileNotFoundError:
         # prevent errors if there is no config file
+        logging.debug(f"config file at '{path}' not found")
         pass
-
-    return conf
