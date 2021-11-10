@@ -40,15 +40,10 @@ def newbibpath(path):
     return os.path.join(dirname, basename)
 
 
-def importbib(path):
-    """Import the bibtex file at the given path."""
-    bparser = bibtex.initparser()
+def writedatabase(db, path, outpath):
+    """Write the BibDatabase `bib` to the path `outpath`."""
     bwriter = bibtex.initwriter()
 
-    with open(path, 'r') as infile:
-        db = bparser.parse_file(infile)
-
-    outpath = newbibpath(path)
     try:
         with open(outpath, 'x') as outfile:
             outfile.write(bwriter.write(db))
@@ -57,3 +52,14 @@ def importbib(path):
     except FileExistsError:
         msg = f"cannot import '{path}': '{outpath}' already exists"
         warnings.warn(msg, RuntimeWarning)
+
+
+def importbib(path):
+    """Import the bibtex file at the given path."""
+    bparser = bibtex.initparser()
+
+    with open(path, 'r') as infile:
+        db = bparser.parse_file(infile)
+
+    outpath = newbibpath(path)
+    writedatabase(db, path, outpath)
