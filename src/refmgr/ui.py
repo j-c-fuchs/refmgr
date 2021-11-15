@@ -26,9 +26,26 @@ from . import config
 from .references import import_refs
 
 
-def configure(args):
+def show_config(args):
     """Print out the configuration."""
     conf.write(sys.stdout)
+
+
+def init_config(args):
+    """Initialize the config file."""
+    config.init(args.c)
+
+
+def add_config_parser(subparsers):
+    """Add the config (sub)parser and return it."""
+    config_parser = subparsers.add_parser('config')
+    config_parser.set_defaults(func=show_config)
+    config_subparsers = config_parser.add_subparsers()
+
+    init_parser = config_subparsers.add_parser('init')
+    init_parser.set_defaults(func=init_config)
+
+    return config_parser
 
 
 def main():
@@ -45,8 +62,7 @@ def main():
                         help=f"config file (default: '{default_conf_path}'")
     subparsers = parser.add_subparsers()
 
-    config_parser = subparsers.add_parser('config')
-    config_parser.set_defaults(func=configure)
+    config_parser = add_config_parser(subparsers)
 
     import_parser = subparsers.add_parser('import')
     import_parser.set_defaults(func=import_refs)
