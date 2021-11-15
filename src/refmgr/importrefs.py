@@ -24,13 +24,13 @@ from . import conf
 from . import bibtex
 
 
-def importrefs(args):
+def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
-        importbib(ref)
+        import_bib(ref)
 
 
-def newbibpath(path):
+def new_bib_path(path):
     """Make the new path for the BibTeX file."""
     basename = os.path.basename(path)
     dirname = os.path.realpath(
@@ -40,9 +40,9 @@ def newbibpath(path):
     return os.path.join(dirname, basename)
 
 
-def writedatabase(db, path, outpath):
+def write_database(db, path, outpath):
     """Write the BibDatabase `bib` to the path `outpath`."""
-    bwriter = bibtex.initwriter()
+    bwriter = bibtex.init_writer()
 
     try:
         with open(outpath, 'x') as outfile:
@@ -54,12 +54,12 @@ def writedatabase(db, path, outpath):
         warnings.warn(msg, RuntimeWarning)
 
 
-def importbib(path):
+def import_bib(path):
     """Import the bibtex file at the given path."""
-    bparser = bibtex.initparser()
+    bparser = bibtex.init_parser()
 
     with open(path, 'r') as infile:
         db = bparser.parse_file(infile)
 
-    outpath = newbibpath(path)
-    writedatabase(db, path, outpath)
+    outpath = new_bib_path(path)
+    write_database(db, path, outpath)

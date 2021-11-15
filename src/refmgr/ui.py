@@ -23,7 +23,7 @@ import sys
 
 from . import __version__, conf
 from . import config
-from .importrefs import importrefs
+from .importrefs import import_refs
 
 
 def configure(args):
@@ -49,7 +49,7 @@ def main():
     config_parser.set_defaults(func=configure)
 
     import_parser = subparsers.add_parser('import')
-    import_parser.set_defaults(func=importrefs)
+    import_parser.set_defaults(func=import_refs)
     import_parser.add_argument('refs', nargs='+')
 
     # parse the command line arguments
@@ -60,6 +60,6 @@ def main():
         os.path.normpath(
             os.path.expanduser(
                 args.c)))
-    config.loadconfig(conf, conf_path)
+    config.load(conf, conf_path)
 
     args.func(args)

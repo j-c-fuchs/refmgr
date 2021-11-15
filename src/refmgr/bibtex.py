@@ -22,7 +22,7 @@ from bibtexparser.bwriter import BibTexWriter
 from . import conf
 
 
-def initparser():
+def init_parser():
     """Initialize and return a new BibTexParser."""
     bparser = BibTexParser()
 
@@ -39,10 +39,12 @@ def initparser():
         bparser.interpolate_bibtex_strings = conf.getboolean(
             'bibtex', 'interpolate_bibtex_strings')
 
+    bparser.customization = customizations
+
     return bparser
 
 
-def initwriter():
+def init_writer():
     """Initialize and return a new BibTexWriter."""
     bwriter = BibTexWriter()
     if 'add_trailing_comma' in conf['bibtex']:

@@ -28,7 +28,7 @@ def default():
     return conf
 
 
-def loadconfig(conf, path):
+def load(conf, path):
     """Read the config from `path` into the config `conf`."""
     try:
         logging.debug(f"trying to read config file '{path}'")
