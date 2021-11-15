@@ -71,11 +71,13 @@ def main():
     # parse the command line arguments
     args = parser.parse_args()
 
-    # parse the config file
-    conf_path = os.path.realpath(
+    # prevent errors due to missing tilde expansion (e.g. in open)
+    args.c = os.path.realpath(
         os.path.normpath(
             os.path.expanduser(
                 args.c)))
-    config.load(conf, conf_path)
+
+    # parse the config file
+    config.load(conf, args.c)
 
     args.func(args)
