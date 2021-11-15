@@ -18,6 +18,16 @@
 
 import configparser
 import logging
+import shutil
+
+import pkg_resources
+
+
+def init(path):
+    """Initialize a config file at `path`."""
+    sample_conf = pkg_resources.resource_stream(__name__, 'data/sample.conf')
+    with open(path, 'x') as outfile:
+        shutil.copyfileobj(sample_conf, outfile)
 
 
 def default():
