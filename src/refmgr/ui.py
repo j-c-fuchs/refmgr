@@ -23,7 +23,7 @@ import sys
 
 from . import __version__, conf
 from . import config
-from .importrefs import import_refs
+from .references import import_refs
 
 
 def configure(args):
