@@ -28,7 +28,7 @@ def init(path):
     logging.debug(f"trying to read sample config file")
     sample_conf = pkg_resources.resource_stream(__name__, 'data/sample.conf')
     logging.debug(f"trying to initialize config file '{path}'")
-    with open(path, 'x') as outfile:
+    with open(path, 'xb') as outfile:
         shutil.copyfileobj(sample_conf, outfile)
         logging.debug(f"config file '{path}' succesfully initialized")
 
