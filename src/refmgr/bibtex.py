@@ -16,10 +16,64 @@
 
 """Handling bibtex files."""
 
+from collections import defaultdict
+
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.bwriter import BibTexWriter
+from bibtexparser import customization as bibc
 
 from . import conf
+
+
+def customize_key(record):
+    """Customize the BibTeX key."""
+    MAX_AUTHORS = 100
+    entrytype = record['ENTRYTYPE'].lower()
+
+    key = conf.get('bibtex', f'{entrytype}_key', fallback=None)
+    if key is None:
+        # don't change the BibTeX key
+        return record
+
+    substitutions = defaultdict('')
+    substitutions.update(record)
+
+    substitutions['original_key'] = record['ID']
+
+    if ('shortjournal' not in substitutions
+            and 'journal' in substitutions):
+        substitutions['shortjournal'] = substitutions['journal']
+    if ('shortjournal_' not in substitutions
+            and 'shortjournal' in substitutions):
+        substitutions['shortjournal_'] = (
+            substitutions['shortjournal'].replace('.', '')
+            )
+
+    # make a copy of record because bibc.author isn't a pure function
+    authors = bibc.author(record.copy())['author']
+    lastnames = [''.join(s for s in name.split(',')[0].split())
+                 for name in authors]
+    firstauthor = lastnames[0]
+    all_authors = ' '.join(lastnames)
+    substitutions['firstauthor'] = firstauthor
+    substitutions['author'] = all_authors
+    for i in range(1, len(authors)):
+        substitutions[f'author_max{i}'] = firstauthor + 'et al'
+        substitutions[f'author_max{i}_'] = ' '.join(lastnames[:i]) + 'et al'
+    for i in range(len(authors), MAX_AUTHORS):
+        substitutions[f'author_max{i}'] = all_authors
+        substitutions[f'author_max{i}_'] = all_authors
+
+    record['ID'] = key.format(substitutions)
+
+    return record
+
+
+def customizations(record):
+    """Customize a BibTeX entry."""
+    record = customize_key(record)
+
+    return record
 
 
 def init_parser():
