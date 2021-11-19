@@ -64,7 +64,12 @@ def customize_key(record):
         substitutions[f'author_max{i}'] = all_authors
         substitutions[f'author_max{i}_'] = all_authors
 
-    record['ID'] = key.format(substitutions)
+    new_key = key.format(substitutions)
+    # remove whitespace
+    key_space = conf.get('bibtex', 'key_space', fallback='')
+    new_key = key_space.join(new_key.split())
+
+    record['ID'] = new_key
 
     return record
 

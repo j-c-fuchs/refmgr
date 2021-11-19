@@ -38,6 +38,7 @@ def default():
     conf = configparser.ConfigParser()
     conf['library'] = {'path': '~/Documents/refmgr/'}
     conf['bibtex'] = {'num_indent': '2'}
+    conf['bibtex'] = {'key_space': '_'}
     return conf
 
 
