@@ -78,6 +78,19 @@ def customizations(record):
     """Customize a BibTeX entry."""
     record = customize_key(record)
 
+    _homogenize_latex_encoding = conf.getboolean(
+        'bibtex', 'homogenize_latex_encoding', fallback=False)
+    _convert_to_unicode = conf.getboolean(
+        'bibtex', 'convert_to_unicode', fallback=False)
+    if _homogenize_latex_encoding and _convert_to_unicode:
+        msg = ('invalid config settings: bibtex.homogenize_latex_encoding and '
+               'bibtex.convert_to_unicode cannot be used together')
+        raise ValueError(msg)
+    elif _homogenize_latex_encoding:
+        record = bibc.homogenize_latex_encoding
+    elif _convert_to_unicode:
+        record = bibc.convert_to_unicode
+
     return record
 
 
