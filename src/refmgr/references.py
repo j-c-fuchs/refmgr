@@ -26,6 +26,13 @@ from . import conf
 from . import bibtex
 
 
+def library_path():
+    """Return the normalized library path."""
+    return os.path.realpath(
+        os.path.normpath(
+            os.path.expanduser(
+                conf['library']['path'])))
+
 def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
@@ -35,10 +42,7 @@ def import_refs(args):
 def new_bib_path(path):
     """Make the new path for the BibTeX file."""
     basename = os.path.basename(path)
-    dirname = os.path.realpath(
-        os.path.normpath(
-            os.path.expanduser(
-                conf['library']['path'])))
+    dirname = library_path()
     return os.path.join(dirname, basename)
 
 
@@ -46,10 +50,7 @@ def single_bib_path(entry):
     """Return the path of a BibTeX file with a single entry."""
     print(f'{entry = }, {type(entry) = }')
     basename = entry['ID']
-    dirname = os.path.realpath(
-        os.path.normpath(
-            os.path.expanduser(
-                conf['library']['path'])))
+    dirname = library_path()
     return os.path.join(dirname, f'{basename}.bib')
 
 
