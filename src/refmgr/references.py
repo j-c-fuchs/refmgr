@@ -24,6 +24,7 @@ from bibtexparser.bibdatabase import BibDatabase
 
 from . import conf
 from . import bibtex
+from . import complete
 
 
 def library_path():
@@ -36,7 +37,7 @@ def library_path():
 def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
-        import_bib(ref, args.single)
+        import_bib(ref, args.single, args.complete)
 
 
 def new_bib_path(path):
@@ -72,17 +73,24 @@ def write_database(db, outpath, overwrite=False):
         warnings.warn(msg, RuntimeWarning)
 
 
-def import_bib(path, single=False):
+def import_bib(path, single=False, completions=None):
     """Import the bibtex file at the given path.
 
     If `single` is `False`, the every import file is saved in the library.
     If it is `True`, a new file will be created for every BibTeX entry
     in the library; it's name will be the BibTeX key with the suffix '.bib'.
     """
+    if completions is None:
+        completions = []
+    # convert strings to complete.Completion
+    completions = [complete.Completion[c.upper()] for c in completions]
+
     bparser = bibtex.init_parser()
 
     with open(path, 'r') as infile:
         db = bparser.parse_file(infile)
+
+    db.entries = [complete.complete(e, completions) for e in db.entries]
 
     if single:
         db2 = BibDatabase()

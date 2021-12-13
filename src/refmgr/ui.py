@@ -24,6 +24,7 @@ import sys
 from . import __version__, conf
 from . import config
 from .references import import_refs
+from . import complete
 
 
 def show_config(args):
@@ -67,6 +68,9 @@ def main():
     import_parser = subparsers.add_parser('import')
     import_parser.set_defaults(func=import_refs)
     import_parser.add_argument('--single', action='store_true')
+    valid_completions = [c.lower() for c in complete.Completion.__members__]
+    import_parser.add_argument('-c', '--complete', action='append',
+                               choices=valid_completions)
     import_parser.add_argument('refs', nargs='+')
 
     # parse the command line arguments
