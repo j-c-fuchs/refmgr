@@ -54,12 +54,16 @@ def single_bib_path(entry):
     return os.path.join(dirname, f'{basename}.bib')
 
 
-def write_database(db, outpath):
+def write_database(db, outpath, overwrite=False):
     """Write the BibDatabase `db` to the path `outpath`."""
     bwriter = bibtex.init_writer()
+    mode = 'w' if overwrite else 'x'
 
     try:
-        with open(outpath, 'x') as outfile:
+        if os.path.exists(outpath):
+            msg = f'overwriting {outpath}'
+            logging.info(msg)
+        with open(outpath, mode) as outfile:
             msg = f'writing to {outpath}'
             logging.info(msg)
             outfile.write(bwriter.write(db))
