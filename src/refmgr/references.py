@@ -20,6 +20,8 @@ import logging
 import os.path
 import warnings
 
+from bibtexparser.bibdatabase import BibDatabase
+
 from . import conf
 from . import bibtex
 
@@ -27,7 +29,7 @@ from . import bibtex
 def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
-        import_bib(ref)
+        import_bib(ref, args.single)
 
 
 def new_bib_path(path):
@@ -40,26 +42,50 @@ def new_bib_path(path):
     return os.path.join(dirname, basename)
 
 
-def write_database(db, path, outpath):
-    """Write the BibDatabase `bib` to the path `outpath`."""
+def single_bib_path(entry):
+    """Return the path of a BibTeX file with a single entry."""
+    print(f'{entry = }, {type(entry) = }')
+    basename = entry['ID']
+    dirname = os.path.realpath(
+        os.path.normpath(
+            os.path.expanduser(
+                conf['library']['path'])))
+    return os.path.join(dirname, f'{basename}.bib')
+
+
+def write_database(db, outpath):
+    """Write the BibDatabase `db` to the path `outpath`."""
     bwriter = bibtex.init_writer()
 
     try:
         with open(outpath, 'x') as outfile:
-            outfile.write(bwriter.write(db))
-            msg = f"imported '{path}' to '{outpath}'"
+            msg = f'writing to {outpath}'
             logging.info(msg)
+            outfile.write(bwriter.write(db))
     except FileExistsError:
-        msg = f"cannot import '{path}': '{outpath}' already exists"
+        msg = f"skipping writing to {outpath}: file already exists"
         warnings.warn(msg, RuntimeWarning)
 
 
-def import_bib(path):
-    """Import the bibtex file at the given path."""
+def import_bib(path, single=False):
+    """Import the bibtex file at the given path.
+
+    If `single` is `False`, the every import file is saved in the library.
+    If it is `True`, a new file will be created for every BibTeX entry
+    in the library; it's name will be the BibTeX key with the suffix '.bib'.
+    """
     bparser = bibtex.init_parser()
 
     with open(path, 'r') as infile:
         db = bparser.parse_file(infile)
 
-    outpath = new_bib_path(path)
-    write_database(db, path, outpath)
+    if single:
+        db2 = BibDatabase()
+        db2.strings = db.strings
+        for entry in db.entries:
+            db2.entries = [entry]
+            outpath = single_bib_path(entry)
+            write_database(db2, outpath)
+    else:
+        outpath = new_bib_path(path)
+        write_database(db, outpath)

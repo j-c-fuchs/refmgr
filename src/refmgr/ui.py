@@ -66,6 +66,7 @@ def main():
 
     import_parser = subparsers.add_parser('import')
     import_parser.set_defaults(func=import_refs)
+    import_parser.add_argument('--single', action='store_true')
     import_parser.add_argument('refs', nargs='+')
 
     # parse the command line arguments
