@@ -87,9 +87,9 @@ def customizations(record):
                'bibtex.convert_to_unicode cannot be used together')
         raise ValueError(msg)
     elif _homogenize_latex_encoding:
-        record = bibc.homogenize_latex_encoding
+        record = bibc.homogenize_latex_encoding(record)
     elif _convert_to_unicode:
-        record = bibc.convert_to_unicode
+        record = bibc.convert_to_unicode(record)
 
     return record
 
