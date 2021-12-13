@@ -28,6 +28,7 @@ from . import conf
 def customize_key(record):
     """Customize the BibTeX key."""
     MAX_AUTHORS = 100
+    MAX_TITLE = 100
     entrytype = record['ENTRYTYPE'].lower()
 
     key = conf.get('bibtex', f'{entrytype}_key', fallback=None)
@@ -63,6 +64,13 @@ def customize_key(record):
     for i in range(len(authors), MAX_AUTHORS):
         substitutions[f'author_max{i}'] = all_authors
         substitutions[f'author_max{i}_'] = all_authors
+
+    # make a copy of record because bibc.author isn't a pure function
+    title_words = record['title'].split()
+    for i in range(1, len(title_words)):
+        substitutions[f'title_max{i}'] = ' '.join(title_words[:i])
+    for i in range(len(title_words), MAX_TITLE):
+        substitutions[f'title_max{i}'] = ' '.join(title_words)
 
     new_key = key.format_map(substitutions)
     # remove whitespace
