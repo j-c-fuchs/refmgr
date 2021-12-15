@@ -17,12 +17,92 @@
 """Handling bibtex files."""
 
 from collections import defaultdict
+import logging
+import csv
 
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.bwriter import BibTexWriter
 from bibtexparser import customization as bibc
+from pkg_resources import resource_stream
 
 from . import conf
+
+
+class Journals:
+    to_abbreviation = {}
+    from_abbreviation = {}
+
+    @classmethod
+    def load_data(cls):
+        """Load the journal abbreviations."""
+        logging.debug('loading journal abbreviations')
+        path = 'data/journal_abbreviations.csv'
+        with resource_stream(__name__, path) as file:
+            data = csv.reader(file, delimiter=';')
+
+            from_abbreviation = {}
+            to_abbreviation = {}
+            for row in data:
+                try:
+                    journal = row[0].strip()
+                    shortjournal = row[1].strip()
+                except IndexError:
+                    continue
+
+                to_abbreviation[journal] = shortjournal
+                from_abbreviation[shortjournal] = journal
+
+        cls.to_abbreviation = to_abbreviation
+        cls.from_abbreviation = from_abbreviation
+
+    @classmethod
+    def from_record(cls, record):
+        """Return the journal name and it's abbreviation of the BibTeX entry
+        `record`.
+
+        Returns a tuple `(journal, journal_abbreviation)`.  If the journal is
+        not known, `(None, None)` is returned.
+        """
+        if not (cls.to_abbreviation and cls.from_abbreviation):
+            logging.debug('len(%s.to_abbreviation) = %s',
+                          cls, len(cls.to_abbreviation))
+            logging.debug('len(%s.from_abbreviation) = %s',
+                          cls, len(cls.from_abbreviation))
+            cls.load_data()
+
+        journal = record.get('journal')
+        shortjournal = record.get('shortjournal')
+        logging.debug('journal = %s, shortjournal = %s', journal, shortjournal)
+
+        if journal is not None:
+            journal, shortjournal = cls.from_journal(journal)
+        elif shortjournal is not None:
+            journal, shortjournal = cls.from_journal(shortjournal)
+
+        return journal, shortjournal
+
+    @classmethod
+    def from_journal(cls, journal):
+        """Return the journal name and it's abbreviation from a journal name.
+
+        The input `journal` is typically the journal name or it's abbreviation
+        Returns a tuple `(full_name, abbreviation)`.  If the journal is
+        unknown, `(None, None)` is returned.  Typically, one of the output
+        values is the input `journal`.
+        """
+        out = None, None
+
+        full = cls.from_abbreviation.get(journal)
+        abbrev = cls.to_abbreviation.get(journal)
+        logging.debug('full = %s, abbrev = %s', full, abbrev)
+
+        if abbrev is not None:
+            out = journal, abbrev
+        elif full is not None:
+            abbrev = cls.to_abbreviation.get(full, journal)
+            out = full, abbrev
+
+        return out
 
 
 def customize_key(record):
@@ -82,6 +162,34 @@ def customize_key(record):
     return record
 
 
+def customize_journal(record):
+    """Change to full length journal title and return the record.
+
+    Tries to substitute the journal title with the full length title and to add
+    a shortjoural field with the abbreviation.  If the journal is unknown,
+    nothing is done.
+    """
+    journal, shortjournal = Journals.from_record(record)
+    if journal is not None:
+        record['journal'] = journal
+    if shortjournal is not None:
+        record['shortjournal'] = shortjournal
+    return record
+
+
+def customize_abbreviate_journal(record):
+    """Change to the abbreviated journal title and return the record.
+
+    Removes the shortjouralfield if it exists.  If the journal or its
+    abbreviation is unknown, nothing is done.
+    """
+    journal, shortjournal = Journals.from_record(record)
+    if shortjournal is not None:
+        record['journal'] = shortjournal
+        record.pop('shortjournal', None)
+    return record
+
+
 def customizations(record):
     """Customize a BibTeX entry."""
     record = customize_key(record)
@@ -98,6 +206,11 @@ def customizations(record):
         record = bibc.homogenize_latex_encoding(record)
     elif _convert_to_unicode:
         record = bibc.convert_to_unicode(record)
+
+    if conf.getboolean('bibtex', 'abbreviate_journals', fallback=False):
+        record = customize_abbreviate_journal(record)
+    elif conf.getboolean('bibtex', 'normalize_journals', fallback=False):
+        record = customize_journal(record)
 
     return record
 
