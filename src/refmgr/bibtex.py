@@ -227,6 +227,19 @@ def convert_month(record):
     return record
 
 
+def normalize_doi(record):
+    """Normalize the DOI and return the record."""
+    doi = record.get('doi')
+    if doi is not None:
+        doi = doi.removeprefix('https://doi.org/')
+        doi = doi.removeprefix('http://doi.org/')
+        doi = doi.removeprefix('https://dx.doi.org/')
+        doi = doi.removeprefix('http://dx.doi.org/')
+        record['doi'] = doi
+
+    return record
+
+
 def customizations(record):
     """Customize a BibTeX entry."""
     record = customize_key(record)
@@ -251,6 +264,9 @@ def customizations(record):
 
     if conf.getboolean('bibtex', 'convert_month', fallback=False):
         record = convert_month(record)
+
+    if conf.getboolean('bibtex', 'normalize_doi', fallback=False):
+        record = normalize_doi(record)
 
     return record
 
