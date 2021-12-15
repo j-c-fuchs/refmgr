@@ -190,6 +190,42 @@ def customize_abbreviate_journal(record):
     return record
 
 
+def convert_month(record):
+    """Convert the month to a number."""
+    month_dict = {
+        'jan': '1',
+        'feb': '2',
+        'mar': '3',
+        'apr': '4',
+        'may': '5',
+        'jun': '6',
+        'jul': '7',
+        'aug': '8',
+        'sep': '9',
+        'okt': '10',
+        'nov': '11',
+        'dec': '12',
+        'january': '1',
+        'february': '2',
+        'march': '3',
+        'april': '4',
+        'june': '6',
+        'july': '7',
+        'august': '8',
+        'september': '9',
+        'oktober': '10',
+        'november': '11',
+        'december': '12',
+    }
+    month = record.get('month')
+    if month is not None:
+        month = month_dict.get(month.lower())
+        if month is not None:
+            record['month'] = month
+
+    return record
+
+
 def customizations(record):
     """Customize a BibTeX entry."""
     record = customize_key(record)
@@ -211,6 +247,9 @@ def customizations(record):
         record = customize_abbreviate_journal(record)
     elif conf.getboolean('bibtex', 'normalize_journals', fallback=False):
         record = customize_journal(record)
+
+    if conf.getboolean('bibtex', 'convert_month', fallback=False):
+        record = convert_month(record)
 
     return record
 
