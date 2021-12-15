@@ -68,6 +68,7 @@ def main():
     import_parser = subparsers.add_parser('import')
     import_parser.set_defaults(func=import_refs)
     import_parser.add_argument('--single', action='store_true')
+    import_parser.add_argument('--rename', action='store_true')
     valid_completions = [c.lower() for c in complete.Completion.__members__]
     import_parser.add_argument('-c', '--complete', action='append',
                                choices=valid_completions)

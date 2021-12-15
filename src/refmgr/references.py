@@ -38,7 +38,7 @@ def library_path():
 def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
-        import_bib(ref, args.single, args.complete, args.copy)
+        import_bib(ref, args.single, args.complete, args.copy, args.rename)
 
 
 def new_bib_path(path):
@@ -82,7 +82,7 @@ def write_database(db, outpath, overwrite=False):
         warnings.warn(msg, RuntimeWarning)
 
 
-def import_bib(path, single=False, completions=None, copy=None):
+def import_bib(path, single=False, completions=None, copy=None, rename=False):
     """Import the bibtex file at the given path.
 
     If `single` is `False`, the every import file is saved in the library.
@@ -115,6 +115,12 @@ def import_bib(path, single=False, completions=None, copy=None):
             logging.info('skip copying %s: importing as single files', copy)
     else:
         outpath = new_bib_path(path)
+        if rename:
+            if len(db.entries) > 1:
+                warnings.warn(f'renaming {path} not possible: '
+                              'more than one reference found')
+            elif db.entries:
+                outpath = single_bib_path(db.entries[0])
         write_database(db, outpath)
         for ext in copy:
             try:
