@@ -23,7 +23,7 @@ import csv
 from bibtexparser.bparser import BibTexParser
 from bibtexparser.bwriter import BibTexWriter
 from bibtexparser import customization as bibc
-from pkg_resources import resource_stream
+import pkg_resources
 
 from . import conf
 
@@ -36,9 +36,10 @@ class Journals:
     def load_data(cls):
         """Load the journal abbreviations."""
         logging.debug('loading journal abbreviations')
-        path = 'data/journal_abbreviations.csv'
-        with resource_stream(__name__, path) as file:
-            data = csv.reader(file, delimiter=';')
+        path = pkg_resources.resource_filename(
+            __name__, 'data/journal_abbreviations.csv')
+        with open(path, 'rt') as file:
+            data = csv.reader(file, delimiter=';', quoting=csv.QUOTE_NONE)
 
             from_abbreviation = {}
             to_abbreviation = {}
