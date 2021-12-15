@@ -51,6 +51,10 @@ def complete(record, completions):
 def dois_match(doi1, doi2):
     logging.debug('doi1: %s', doi1)
     logging.debug('doi2: %s', doi2)
+    if doi1 is None or doi2 is None:
+        return False
+    if not (doi1 and doi2):
+        return False
     return doi1 in doi2 or doi2 in doi1
 
 
