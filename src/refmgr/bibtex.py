@@ -240,6 +240,14 @@ def normalize_doi(record):
     return record
 
 
+def remove_empty_fields(record):
+    """Remove empty fields and return the record."""
+    emtpy_fields = [k for k, v in record.items() if not v]
+    for field in emtpy_fields:
+        del record[field]
+    return record
+
+
 def customizations(record):
     """Customize a BibTeX entry."""
     if conf.getboolean('bibtex', 'convert_month', fallback=False):
@@ -252,6 +260,9 @@ def customizations(record):
 
     if conf.getboolean('bibtex', 'normalize_doi', fallback=False):
         record = normalize_doi(record)
+
+    if conf.getboolean('bibtex', 'remove_empty_fields', fallback=False):
+        record = remove_empty_fields(record)
 
     _homogenize_latex_encoding = conf.getboolean(
         'bibtex', 'homogenize_latex_encoding', fallback=False)
