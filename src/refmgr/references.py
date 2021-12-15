@@ -19,6 +19,7 @@
 import logging
 import os.path
 import warnings
+import shutil
 
 from bibtexparser.bibdatabase import BibDatabase
 
@@ -37,7 +38,7 @@ def library_path():
 def import_refs(args):
     """Import the given references."""
     for ref in args.refs:
-        import_bib(ref, args.single, args.complete)
+        import_bib(ref, args.single, args.complete, args.copy)
 
 
 def new_bib_path(path):
@@ -53,6 +54,14 @@ def single_bib_path(entry):
     basename = entry['ID']
     dirname = library_path()
     return os.path.join(dirname, f'{basename}.bib')
+
+
+def subs_ext(path, ext):
+    """Substitute the extension of `path` with `ext` and return the new
+    path."""
+    root, _ = os.path.splitext(path)
+    ext = ext.rstrip('.')
+    return f'{root}.{ext}'
 
 
 def write_database(db, outpath, overwrite=False):
@@ -73,7 +82,7 @@ def write_database(db, outpath, overwrite=False):
         warnings.warn(msg, RuntimeWarning)
 
 
-def import_bib(path, single=False, completions=None):
+def import_bib(path, single=False, completions=None, copy=None):
     """Import the bibtex file at the given path.
 
     If `single` is `False`, the every import file is saved in the library.
@@ -82,6 +91,9 @@ def import_bib(path, single=False, completions=None):
     """
     if completions is None:
         completions = []
+    if copy is None:
+        copy = []
+
     # convert strings to complete.Completion
     completions = [complete.Completion[c.upper()] for c in completions]
 
@@ -99,6 +111,16 @@ def import_bib(path, single=False, completions=None):
             db2.entries = [entry]
             outpath = single_bib_path(entry)
             write_database(db2, outpath)
+        if copy:
+            logging.info('skip copying %s: importing as single files', copy)
     else:
         outpath = new_bib_path(path)
         write_database(db, outpath)
+        for ext in copy:
+            try:
+                src = subs_ext(path, ext)
+                dst = subs_ext(outpath, ext)
+                logging.info('copying %s to %s', src, dst)
+                shutil.copyfile(src, dst)
+            except FileNotFoundError:
+                continue

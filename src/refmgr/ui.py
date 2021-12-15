@@ -71,6 +71,7 @@ def main():
     valid_completions = [c.lower() for c in complete.Completion.__members__]
     import_parser.add_argument('-c', '--complete', action='append',
                                choices=valid_completions)
+    import_parser.add_argument('--copy', action='append')
     import_parser.add_argument('refs', nargs='+')
 
     # parse the command line arguments
