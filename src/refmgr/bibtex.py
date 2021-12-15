@@ -242,7 +242,16 @@ def normalize_doi(record):
 
 def customizations(record):
     """Customize a BibTeX entry."""
-    record = customize_key(record)
+    if conf.getboolean('bibtex', 'convert_month', fallback=False):
+        record = convert_month(record)
+
+    if conf.getboolean('bibtex', 'abbreviate_journals', fallback=False):
+        record = customize_abbreviate_journal(record)
+    elif conf.getboolean('bibtex', 'normalize_journals', fallback=False):
+        record = customize_journal(record)
+
+    if conf.getboolean('bibtex', 'normalize_doi', fallback=False):
+        record = normalize_doi(record)
 
     _homogenize_latex_encoding = conf.getboolean(
         'bibtex', 'homogenize_latex_encoding', fallback=False)
@@ -257,16 +266,7 @@ def customizations(record):
     elif _convert_to_unicode:
         record = bibc.convert_to_unicode(record)
 
-    if conf.getboolean('bibtex', 'abbreviate_journals', fallback=False):
-        record = customize_abbreviate_journal(record)
-    elif conf.getboolean('bibtex', 'normalize_journals', fallback=False):
-        record = customize_journal(record)
-
-    if conf.getboolean('bibtex', 'convert_month', fallback=False):
-        record = convert_month(record)
-
-    if conf.getboolean('bibtex', 'normalize_doi', fallback=False):
-        record = normalize_doi(record)
+    record = customize_key(record)
 
     return record
 
